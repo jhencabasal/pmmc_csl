@@ -73,7 +73,7 @@ sex_monthly_plots <- demo_summary2 %>%
    labs(y = "Observation Count") +
    facet_wrap(~Year)
 plot(sex_monthly_plots)
-ggsave("sex_monthly_plots.png")
+ggsave("sex_monthly_plots.png", height = 10, width = 10)
 
 # monthly plots of counts by age & sex
 age_monthly_plots <- demo_summary3 %>%
