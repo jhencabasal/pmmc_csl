@@ -23,9 +23,9 @@ CSL_clean <- CSL %>%
   select(-c(WeightUnits, LengthUnits, Weight, Length))
 
 
-# data visualization ------------------------------------------------------
+# data summaries ------------------------------------------------------
 
-# abundance summary of stranding events by year, life stage, and sex
+# abundance summaries of stranding events by year, month, life stage, and sex (sorted by count() function)
 demo_summary <- CSL_clean %>% 
   count(Year, Sex, Age) %>% 
   na_if("UNKNOWN") %>% 
@@ -37,35 +37,65 @@ demo_summary2 <- CSL_clean %>%
   count(Month, Year, Sex) %>% # includes months
   na_if("UNKNOWN") %>% 
   na.omit() %>%
-  # mutate(Age = as_factor(Age)) %>% 
-  # mutate(Age = fct_relevel(Age, "PUP/CALF", "YEARLING", "SUBADULT", "ADULT")) %>% 
   mutate(Month = as_factor(Month)) %>% 
   mutate(Month = fct_relevel(Month, "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"))
 
+demo_summary3 <- CSL_clean %>% 
+  count(Month, Age) %>% 
+  na_if("UNKNOWN") %>% 
+  na.omit() %>%
+  mutate(Age = as_factor(Age)) %>% 
+  mutate(Age = fct_relevel(Age, "PUP/CALF", "YEARLING", "SUBADULT", "ADULT")) %>% 
+  mutate(Month = as_factor(Month)) %>% 
+  mutate(Month = fct_relevel(Month, "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"))
+
+
+# data visualization ------------------------------------------------------
 
 # initial plot of observation counts between 2006-2019 across different life stages, between male and females
 counts_plot <- ggplot(demo_summary, aes(x = Year, y = n, color = Sex)) +
   geom_line() +
   theme_bw() +
   labs(y = "Observation Count") +
-  facet_wrap(~Age)
+  facet_wrap(~Age) +
+  scale_x_continuous(breaks = seq(0, 2019, by = 2))
   # facet_wrap(~Age, scales = "free_y") # Dates are the same in each plot, but the y will have different scales
-
 plot(counts_plot)
-# ggsave("counts_plot.png")
+ggsave("counts_plot.png")
 # ggsave("counts_plot_free_y.png")
 
-
 # plotting observation counts by month, per year, only looking at sex
-yearly_plots_female <- demo_summary2 %>%
-  ggplot(aes(Month, y = n)) +
-  geom_path() +
+sex_monthly_plots <- demo_summary2 %>%
+  ggplot(aes(Month, y = n, color = Sex)) +
    geom_point(size = 2) +
    theme_bw() +
-   labs(y = "Observation Count")
-   facet_wrap(~Year)
+   labs(y = "Observation Count") +
+   facet_wrap(~Year, ncol = 2)
+plot(sex_monthly_plots)
+ggsave("sex_monthly_plots.png")
 
-plot(yearly_plots)
-# ggsave("yearly_plot.png")
+# monthly plots of counts by age & sex
+age_monthly_plots <- demo_summary3 %>%
+  ggplot(aes(Month, y = n)) +
+  geom_point(size = 2) +
+  theme_bw() +
+  labs(y = "Observation Count") +
+  facet_wrap(~Age)
+plot(age_monthly_plots)
+ggsave("age_monthly_plots.png")
 
-# test
+
+# average counts
+avg_summary <- CSL_clean %>% 
+  group_by(Month) %>%
+  count(Year) %>% 
+  mutate(mean = mean(n)) %>% 
+  mutate(Month = as_factor(Month)) %>% 
+  mutate(Month = fct_relevel(Month, "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"))
+
+avg_monthly <- ggplot(avg_summary, aes(x = Month, y = mean)) +
+  geom_point() +
+  theme_bw() +
+  labs(y = "Average Observations across 2016-2019")
+avg_monthly
+ggsave("avg_monthly.png")
