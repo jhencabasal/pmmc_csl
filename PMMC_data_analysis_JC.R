@@ -69,8 +69,9 @@ sex_monthly_plots <- demo_summary2 %>%
   ggplot(aes(Month, y = n, color = Sex)) +
    geom_point(size = 2) +
    theme_bw() +
+   scale_x_discrete(breaks = c("Jan", "Apr", "Jul", "Oct")) +
    labs(y = "Observation Count") +
-   facet_wrap(~Year, ncol = 2)
+   facet_wrap(~Year)
 plot(sex_monthly_plots)
 ggsave("sex_monthly_plots.png")
 
