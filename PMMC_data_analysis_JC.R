@@ -49,6 +49,14 @@ demo_summary3 <- CSL_clean %>%
   mutate(Month = as_factor(Month)) %>% 
   mutate(Month = fct_relevel(Month, "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"))
 
+demo_summary4 <- CSL_clean %>% 
+  count(Year, Month, Sex, Age) %>% 
+  na_if("UNKNOWN") %>% 
+  na.omit() %>%
+  mutate(Age = as_factor(Age)) %>% 
+  mutate(Age = fct_relevel(Age, "PUP/CALF", "YEARLING", "SUBADULT", "ADULT")) %>% 
+  mutate(Month = as_factor(Month)) %>% 
+  mutate(Month = fct_relevel(Month, "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"))
 
 # data visualization ------------------------------------------------------
 
@@ -74,6 +82,51 @@ sex_monthly_plots <- demo_summary2 %>%
    facet_wrap(~Year)
 plot(sex_monthly_plots)
 ggsave("sex_monthly_plots.png", height = 10, width = 10)
+
+# observation counts by month, per year, by each age level
+pup_plot <- demo_summary4 %>%
+  filter(Age == "PUP/CALF") %>% 
+  ggplot(aes(Month, y = n, color = Sex)) +
+  geom_point(size = 2) +
+  theme_bw() +
+  scale_x_discrete(breaks = c("Jan", "Apr", "Jul", "Oct")) +
+  labs(y = "Observation Count", title = "PUP/CALF") +
+  facet_wrap(~Year)
+pup_plot
+ggsave("pup_plot.png", height = 10, width = 10)
+
+yearling_plot <- demo_summary4 %>%
+  filter(Age == "YEARLING") %>% 
+  ggplot(aes(Month, y = n, color = Sex)) +
+  geom_point(size = 2) +
+  theme_bw() +
+  scale_x_discrete(breaks = c("Jan", "Apr", "Jul", "Oct")) +
+  labs(y = "Observation Count", title = "YEARLING") +
+  facet_wrap(~Year)
+yearling_plot
+ggsave("yearling_plot.png", height = 10, width = 10)
+
+subadult_plot <- demo_summary4 %>%
+  filter(Age == "SUBADULT") %>% 
+  ggplot(aes(Month, y = n, color = Sex)) +
+  geom_point(size = 2) +
+  theme_bw() +
+  scale_x_discrete(breaks = c("Jan", "Apr", "Jul", "Oct")) +
+  labs(y = "Observation Count", title = "SUBADULT") +
+  facet_wrap(~Year)
+subadult_plot
+ggsave("subadult_plot.png", height = 10, width = 10)
+
+adult_plot <- demo_summary4 %>%
+  filter(Age == "ADULT") %>% 
+  ggplot(aes(Month, y = n, color = Sex)) +
+  geom_point(size = 2) +
+  theme_bw() +
+  scale_x_discrete(breaks = c("Jan", "Apr", "Jul", "Oct")) +
+  labs(y = "Observation Count", title = "ADULT") +
+  facet_wrap(~Year)
+adult_plot
+ggsave("adult_plot.png", height = 10, width = 10)
 
 # monthly plots of counts by age & sex
 age_monthly_plots <- demo_summary3 %>%
